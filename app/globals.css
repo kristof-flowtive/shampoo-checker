@@ -1,26 +1,105 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #121212;
+  --brand-317: #bfe2e3;
+  --brand-317-soft: #e6f4f4;
+  --brand-317-tint: #f2fafa;
+  --brand-317-deep: #0e7c86;
+  --brand-317-deeper: #0a5a62;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-brand: var(--brand-317);
+  --color-brand-soft: var(--brand-317-soft);
+  --color-brand-deep: var(--brand-317-deep);
+  --color-brand-deeper: var(--brand-317-deeper);
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* Editorial serif headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+/* Smooth transitions everywhere */
+*, *::before, *::after {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s ease-out forwards;
+}
+
+/* Luxury divider */
+.divider-ornament {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.divider-ornament::before,
+.divider-ornament::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #bfe2e3, transparent);
+}
+
+/* Safe-area padding for notched devices */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  footer {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Prevent 300ms tap delay on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent pull-to-refresh interfering with scroll */
+html {
+  overscroll-behavior: none;
 }
