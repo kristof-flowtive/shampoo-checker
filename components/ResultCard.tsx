@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import {
   CheckCircle,
   XCircle,
   AlertTriangle,
   Lightbulb,
   ArrowRightCircle,
+  RefreshCw,
 } from "lucide-react";
 import type { AnalysisResult } from "@/app/page";
 
@@ -15,7 +17,7 @@ function gradeColor(grade: string): string {
     case "A":
       return "text-green-700 bg-green-50 border-green-200";
     case "B":
-      return "text-blue-700 bg-blue-50 border-blue-200";
+      return "text-[#0a5a62] bg-[#e4f3f4] border-[#bfe4e7]";
     case "C":
       return "text-yellow-700 bg-yellow-50 border-yellow-200";
     case "D":
@@ -44,16 +46,31 @@ function verdictBg(verdict: string): string {
 }
 
 export default function ResultCard({ result }: { result: AnalysisResult }) {
+  // De-duplicate recommendations by product + brand so we never show the same one twice
+  const uniqueRecs = useMemo(() => {
+    const seen = new Set<string>();
+    const out: AnalysisResult["recommendations"] = [];
+    for (const rec of result.recommendations ?? []) {
+      const key = `${(rec.brand ?? "").toLowerCase().trim()}::${(rec.productName ?? "").toLowerCase().trim()}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(rec);
+    }
+    return out;
+  }, [result.recommendations]);
+
+  const [recIndex, setRecIndex] = useState(0);
+  const currentRec = uniqueRecs[recIndex] ?? null;
+
   return (
     <div className="space-y-6">
       {/* Score Header */}
-      <div className="bg-white rounded-2xl shadow-sm border border-[#121212]/5 p-5 sm:p-8">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-[#121212]/5 p-5 sm:p-8">
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-          {/* Grade Badge */}
           <div
             className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 flex flex-col items-center justify-center ${gradeColor(result.grade)}`}
           >
-            <span className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-serif)]">
+            <span className="text-2xl sm:text-3xl font-semibold tracking-tight">
               {result.grade}
             </span>
             <span className="text-[10px] font-medium tracking-[0.15em] uppercase opacity-60">
@@ -61,9 +78,8 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
             </span>
           </div>
 
-          {/* Score + Info */}
           <div className="flex-1 text-center sm:text-left">
-            <h3 className="text-xl font-medium text-[#121212] font-[family-name:var(--font-serif)]">
+            <h3 className="text-xl font-medium text-[#121212] tracking-tight">
               {result.productName}
             </h3>
             {result.brand && (
@@ -71,7 +87,7 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
             )}
             <div className="flex items-baseline gap-1.5 justify-center sm:justify-start mb-3">
               <span
-                className={`text-3xl font-light font-[family-name:var(--font-serif)] ${scoreColor(result.score)}`}
+                className={`text-3xl font-light tracking-tight ${scoreColor(result.score)}`}
               >
                 {result.score}
               </span>
@@ -84,7 +100,6 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
             </div>
           </div>
 
-          {/* Score Bar */}
           <div className="w-full sm:w-32">
             <div className="h-2 bg-[#121212]/5 rounded-full overflow-hidden">
               <div
@@ -103,7 +118,6 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
           </div>
         </div>
 
-        {/* Summary */}
         <p className="mt-6 text-[#121212]/55 text-sm leading-relaxed border-t border-[#121212]/5 pt-5">
           {result.summary}
         </p>
@@ -111,7 +125,7 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
 
       {/* Good Ingredients */}
       {result.goodIngredients.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#121212]/5 p-5 sm:p-7">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-[#121212]/5 p-5 sm:p-7">
           <h4 className="font-medium text-[#121212] mb-4 flex items-center gap-2.5 text-sm tracking-wide">
             <CheckCircle size={17} className="text-green-500" />
             Extension-Friendly Ingredients
@@ -134,7 +148,7 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
 
       {/* Bad Ingredients */}
       {result.badIngredients.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#121212]/5 p-5 sm:p-7">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-[#121212]/5 p-5 sm:p-7">
           <h4 className="font-medium text-[#121212] mb-4 flex items-center gap-2.5 text-sm tracking-wide">
             <XCircle size={17} className="text-red-500" />
             Potentially Harmful Ingredients
@@ -154,7 +168,7 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
 
       {/* Warnings */}
       {result.warnings.length > 0 && (
-        <div className="bg-yellow-50/70 rounded-2xl border border-yellow-200 p-5 sm:p-7">
+        <div className="bg-yellow-50/80 backdrop-blur-sm rounded-2xl border border-yellow-200 p-5 sm:p-7">
           <h4 className="font-medium text-yellow-800 mb-3 flex items-center gap-2.5 text-sm tracking-wide">
             <AlertTriangle size={17} />
             Warnings
@@ -171,7 +185,7 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
 
       {/* Tips */}
       {result.tips.length > 0 && (
-        <div className="bg-[#e6f4f4]/60 rounded-2xl border border-[#bfe2e3] p-5 sm:p-7">
+        <div className="bg-[#e4f3f4]/80 backdrop-blur-sm rounded-2xl border border-[#bfe4e7] p-5 sm:p-7">
           <h4 className="font-medium text-[#0a5a62] mb-3 flex items-center gap-2.5 text-sm tracking-wide">
             <Lightbulb size={17} />
             Tips
@@ -186,58 +200,90 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
         </div>
       )}
 
-      {/* Recommendation */}
-      {result.recommendation && (
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 p-5 sm:p-7">
-          <h4 className="font-medium text-emerald-900 mb-4 flex items-center gap-2.5 text-sm tracking-wide">
-            <ArrowRightCircle size={17} className="text-emerald-600" />
-            Try This Instead
-          </h4>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            {result.recommendation.imageUrl && (
-              <div className="w-24 h-24 rounded-xl border border-emerald-200 bg-white overflow-hidden shrink-0 flex items-center justify-center p-1.5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/api/image-proxy?url=${encodeURIComponent(result.recommendation.imageUrl)}`}
-                  alt={result.recommendation.productName}
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.currentTarget.parentElement as HTMLElement).style.display = "none";
-                  }}
-                />
-              </div>
-            )}
-            <div
-              className={`w-16 h-16 rounded-xl border-2 flex flex-col items-center justify-center shrink-0 ${gradeColor(result.recommendation.grade)}`}
-            >
-              <span className="text-xl font-bold font-[family-name:var(--font-serif)]">
-                {result.recommendation.grade}
-              </span>
-              <span className="text-[10px] font-medium opacity-60">
-                {result.recommendation.score}/10
-              </span>
-            </div>
+      {/* Recommendation (rotates through the options) */}
+      {currentRec && (
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#bfe4e7] p-5 sm:p-7 shadow-sm">
+          <div className="flex items-start justify-between gap-4 mb-5">
             <div>
-              <p className="font-medium text-emerald-900 font-[family-name:var(--font-serif)]">
-                {result.recommendation.productName}
-              </p>
-              <p className="text-sm text-emerald-700/70 mb-1">
-                {result.recommendation.brand}
-              </p>
-              <p className="text-sm text-[#121212]/50">
-                {result.recommendation.reason}
-              </p>
+              <h4 className="font-medium text-[#0a5a62] flex items-center gap-2.5 text-sm tracking-wide">
+                <ArrowRightCircle size={17} className="text-[#0e7c86]" />
+                Recommended Alternative
+              </h4>
+              {uniqueRecs.length > 1 && (
+                <p className="text-xs text-[#121212]/45 mt-1 ml-6">
+                  Option {recIndex + 1} of {uniqueRecs.length}
+                </p>
+              )}
             </div>
+            {uniqueRecs.length > 1 && (
+              <button
+                type="button"
+                onClick={() =>
+                  setRecIndex((i) => (i + 1) % uniqueRecs.length)
+                }
+                className="flex items-center gap-1.5 text-xs font-medium text-[#0e7c86] hover:text-[#0a5a62] active:text-[#084a52] bg-[#e4f3f4] hover:bg-[#bfe4e7] rounded-full px-3.5 py-2 transition-all duration-300 cursor-pointer touch-manipulation select-none"
+                aria-label="Show another recommendation"
+              >
+                <RefreshCw size={13} />
+                Show another
+              </button>
+            )}
           </div>
+
+          <RecommendationTile key={recIndex} rec={currentRec} />
         </div>
       )}
 
       {/* Disclaimer */}
-      <p className="text-[11px] text-[#121212]/25 text-center px-4 tracking-wide">
+      <p className="text-[11px] text-[#121212]/35 text-center px-4 tracking-wide">
         This analysis is AI-generated and for informational purposes only. Actual
         product formulations may vary. Always consult your hair extension stylist
         for personalized recommendations.
       </p>
+    </div>
+  );
+}
+
+type Rec = NonNullable<AnalysisResult["recommendations"]>[number];
+
+function RecommendationTile({ rec }: { rec: Rec }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const hasImage = !!rec.imageUrl && !imgFailed;
+
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 rounded-xl bg-[#f2fafa] border border-[#bfe4e7]/60 animate-fade-in">
+      <div className="w-20 h-20 rounded-lg border border-[#bfe4e7] bg-white overflow-hidden shrink-0 flex items-center justify-center p-1.5">
+        {hasImage ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={`/api/image-proxy?url=${encodeURIComponent(rec.imageUrl as string)}`}
+            alt={rec.productName}
+            className="w-full h-full object-contain"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <div className="w-full h-full rounded-md bg-gradient-to-br from-[#e4f3f4] to-[#bfe4e7] flex items-center justify-center text-[#0a5a62] text-[10px] font-medium tracking-wider uppercase">
+            No image
+          </div>
+        )}
+      </div>
+      <div
+        className={`w-14 h-14 rounded-xl border-2 flex flex-col items-center justify-center shrink-0 ${gradeColor(rec.grade)}`}
+      >
+        <span className="text-lg font-semibold tracking-tight">{rec.grade}</span>
+        <span className="text-[9px] font-medium opacity-60">
+          {rec.score}/10
+        </span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-medium text-[#121212] tracking-tight">
+          {rec.productName}
+        </p>
+        <p className="text-sm text-[#0e7c86]/80 mb-1">{rec.brand}</p>
+        <p className="text-sm text-[#121212]/55 leading-relaxed">
+          {rec.reason}
+        </p>
+      </div>
     </div>
   );
 }

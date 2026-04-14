@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 :root {
+  /* Pantone 317 C — pale aqua/mint brand color */
   --background: #fafafa;
   --foreground: #121212;
-  --brand-317: #bfe2e3;
-  --brand-317-soft: #e6f4f4;
+  --brand-317: #bfe4e7;
+  --brand-317-soft: #e4f3f4;
   --brand-317-tint: #f2fafa;
   --brand-317-deep: #0e7c86;
   --brand-317-deeper: #0a5a62;
@@ -17,7 +18,6 @@
   --color-brand-soft: var(--brand-317-soft);
   --color-brand-deep: var(--brand-317-deep);
   --color-brand-deeper: var(--brand-317-deeper);
-  --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
 }
 
@@ -27,9 +27,59 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* Editorial serif headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Background image layer */
+.site-bg {
+  position: relative;
+  background-color: #fafafa;
+}
+
+.site-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("/hair-models.jpg");
+  background-size: cover;
+  background-position: center 15%;
+  background-repeat: no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .site-bg::before {
+    background-position: center 22%;
+  }
+}
+
+.site-bg-overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(250, 250, 250, 0.72) 0%,
+      rgba(250, 250, 250, 0.88) 40%,
+      rgba(250, 250, 250, 0.96) 100%
+    );
+  z-index: 1;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .site-bg-overlay {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(250, 250, 250, 0.65) 0%,
+        rgba(250, 250, 250, 0.85) 45%,
+        rgba(250, 250, 250, 0.95) 100%
+      );
+  }
 }
 
 /* Smooth transitions everywhere */
@@ -38,25 +88,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes subtle-pulse {
@@ -64,13 +102,8 @@ h1, h2, h3, h4, h5, h6 {
   50% { opacity: 0.7; }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out forwards;
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.7s ease-out forwards;
-}
+.animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
+.animate-fade-in-up { animation: fade-in-up 0.7s ease-out forwards; }
 
 /* Luxury divider */
 .divider-ornament {
@@ -84,7 +117,7 @@ h1, h2, h3, h4, h5, h6 {
   content: "";
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #bfe2e3, transparent);
+  background: linear-gradient(90deg, transparent, var(--brand-317), transparent);
 }
 
 /* Safe-area padding for notched devices */
@@ -94,12 +127,5 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Prevent 300ms tap delay on mobile */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Prevent pull-to-refresh interfering with scroll */
-html {
-  overscroll-behavior: none;
-}
+* { -webkit-tap-highlight-color: transparent; }
+html { overscroll-behavior: none; }

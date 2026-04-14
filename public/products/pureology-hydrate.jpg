@@ -1,0 +1,177 @@
+<esi:debug/>
+<esi:remove>
+</esi:remove>
+<html lang="en">
+<head>
+ 		<meta charset="UTF-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="description" content="description here" />
+		<meta name="keywords" content="keywords here" />
+		<!-- <link rel="stylesheet" href="style.css"  /> -->
+
+		<title>ULTA.com :: Our Apologies</title>
+
+  <esi:comment text=" --------------- DOWNSTREAM SETTINGS ------------ "/>
+  <esi:vars></esi:vars>
+  <esi:assign name="refresh_seconds" value="$(HTTP_X_AKA_VP_WRCOOKIEEXPIRYSECONDS|'30')"/>
+  <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+
+<esi:choose>
+  <esi:when test="$(REQUEST_METHOD)=='GET'">
+    <esi:comment text=" --------------- CUSTOMIZE GET SPECIFIC HEADER ------------ "/>
+    <META HTTP-EQUIV="Refresh" CONTENT="$(refresh_seconds)">
+
+    <esi:comment text=" css, javascript goes here "/>
+	<link rel="stylesheet" href="/vp/ulta/www/vpwaitingroom/style.css"  />
+
+    </head><body>
+  </esi:when>
+  <esi:otherwise>
+    <esi:comment text=" --------------- CUSTOMIZE POST SPECIFIC HEADER ------------ "/>
+
+    <esi:comment text=" css, javascript goes here "/>
+
+    </head><body onLoad="submitWait();true;">
+  </esi:otherwise>
+</esi:choose>
+
+<esi:choose>
+  <esi:when test="$(REQUEST_METHOD)=='GET'">
+    <esi:comment text=" --------------- CUSTOMIZE GET SPECIFIC BODY ------------ "/>
+
+  </esi:when>
+  <esi:otherwise>
+    <esi:comment text=" --------------- CUSTOMIZE POST SPECIFIC BODY ------------ "/>
+    <esi:comment text=" -- POST BODY is more complex, as POST request data has to be saved, except PCI data.  Do not remove ESI code below. -- "/>
+    <form id="wr" name="waitroomform" action="#" method="POST">
+
+    <esi:comment text=" -- Luhn Validation must be used to remove sensitive PCI data before storing POST body in hidden field -- "/>
+    <esi:function name="reverse">
+        <esi:assign name="result" value="''"/>
+        <esi:foreach item="CHAR" collection="$(ARGS{0})">
+            <esi:choose>
+                <esi:when test="$(CHAR_start)">
+                    <esi:assign name="result" value="$(CHAR)"/>
+                </esi:when>
+                <esi:otherwise>
+                    <esi:assign name="result" value="$(CHAR)+$str($(result))"/>
+                </esi:otherwise>
+            </esi:choose>
+        </esi:foreach>
+        <esi:return value="$(result)"/>
+    </esi:function>
+    <esi:function name="luhn">
+      <esi:assign name="reversed_cc" value="$reverse($(ARGS{0}))"/>
+      <esi:assign name="sum" value="0"/>
+	  <esi:assign name="sumArray" value="[0, 2, 4, 6, 8, 1, 3, 5, 7, 9]"/>
+	  <esi:foreach item="CC_DIGIT" collection="$(reversed_cc)">
+        <esi:choose>
+		  <esi:when test="$(CC_DIGIT_start)">
+			<esi:assign name="sum" value="$int($(CC_DIGIT))"/>
+		  </esi:when>
+		  <esi:when test="$(CC_DIGIT_odd)">
+			<esi:assign name="sum" value="$int($(CC_DIGIT))+$int($(sum))"/>
+		  </esi:when>
+		  <esi:otherwise>
+		    <esi:assign name="sum" value="$int($(sumArray{$int($(CC_DIGIT))}))+$int($(sum))"/>
+		  </esi:otherwise>
+	    </esi:choose>
+	  </esi:foreach>
+	  <esi:choose>
+		<esi:when test="$(sum)>0 && $(sum)%10==0">
+		  <esi:return value="'true'"/>
+		</esi:when>
+		<esi:otherwise>
+		  <esi:return value="'false'"/>
+		</esi:otherwise>
+	  </esi:choose>
+    </esi:function>
+    <esi:comment text=" -- Using Luhn Validation functions above, examine POST request body for PCI data and remove it. -- "/>
+    <esi:foreach item="NAMEVALUE" collection="$(POST)">
+      <esi:choose>
+        <esi:when test="$(NAMEVALUE{0})=='submit'">
+          <!-- skipping submit -->
+        </esi:when>
+        <esi:when test="$(NAMEVALUE{1}) matches '''^\[\'.*?\'\]'''">
+          <esi:foreach item="MULTIVAL" collection="$(NAMEVALUE{1})">
+			<esi:assign name="IS_CC" value="'false'"/>
+			<esi:assign name="FIELD_VALUE" value="$replace($replace($(MULTIVAL), ' ', ''), '-', '')"/>
+			<esi:choose>
+			  <esi:when test="($(FIELD_VALUE) matches '''^\d{13,16}$''')">
+				<esi:assign name="IS_CC" value="$luhn($(FIELD_VALUE))"/>
+			  </esi:when>
+			</esi:choose>
+		    <esi:choose>
+		      <esi:when test="$(IS_CC)=='true'">
+				<input type="hidden" name="$(NAMEVALUE{0})" value="''">
+			  </esi:when>
+			  <esi:otherwise>
+				<input type="hidden" name="$(NAMEVALUE{0})" value="$html_encode($(MULTIVAL))">
+			  </esi:otherwise>
+		    </esi:choose>
+          </esi:foreach>
+        </esi:when>
+        <esi:otherwise>
+		  <esi:assign name="IS_CC" value="'false'"/>
+		  <esi:assign name="FIELD_VALUE" value="$replace($replace($str($(NAMEVALUE{1})), ' ', ''), '-', '')"/>
+		  <esi:choose>
+			<esi:when test="($(FIELD_VALUE) matches '''^\d{13,16}$''')">
+			  <esi:assign name="IS_CC" value="$luhn($(FIELD_VALUE))"/>
+			</esi:when>
+		  </esi:choose>
+		  <esi:choose>
+			<esi:when test="$(IS_CC)=='true'">
+			  <input type="hidden" name="$(NAMEVALUE{0})" value="''">
+			</esi:when>
+			<esi:otherwise>
+			  <input type="hidden" name="$(NAMEVALUE{0})" value="$html_encode($(NAMEVALUE{1}))">
+			</esi:otherwise>
+		  </esi:choose>
+        </esi:otherwise>
+      </esi:choose>
+    </esi:foreach>
+    </form>
+    <script>
+// akam-sw.js install script version 1.3.6
+"serviceWorker"in navigator&&"find"in[]&&function(){var e=new Promise(function(e){"complete"===document.readyState||!1?e():(window.addEventListener("load",function(){e()}),setTimeout(function(){"complete"!==document.readyState&&e()},1e4))}),n=window.akamServiceWorkerInvoked,r="1.3.6";if(n)aka3pmLog("akam-setup already invoked");else{window.akamServiceWorkerInvoked=!0,window.aka3pmLog=function(){window.akamServiceWorkerDebug&&console.log.apply(console,arguments)};function o(e){(window.BOOMR_mq=window.BOOMR_mq||[]).push(["addVar",{"sm.sw.s":e,"sm.sw.v":r}])}var i="/akam-sw.js",a=new Map;navigator.serviceWorker.addEventListener("message",function(e){var n,r,o=e.data;if(o.isAka3pm)if(o.command){var i=(n=o.command,(r=a.get(n))&&r.length>0?r.shift():null);i&&i(e.data.response)}else if(o.commandToClient)switch(o.commandToClient){case"enableDebug":window.akamServiceWorkerDebug||(window.akamServiceWorkerDebug=!0,aka3pmLog("Setup script debug enabled via service worker message"),v());break;case"boomerangMQ":o.payload&&(window.BOOMR_mq=window.BOOMR_mq||[]).push(o.payload)}aka3pmLog("akam-sw message: "+JSON.stringify(e.data))});var t=function(e){return new Promise(function(n){var r,o;r=e.command,o=n,a.has(r)||a.set(r,[]),a.get(r).push(o),navigator.serviceWorker.controller&&(e.isAka3pm=!0,navigator.serviceWorker.controller.postMessage(e))})},c=function(e){return t({command:"navTiming",navTiming:e})},s=null,m={},d=function(){var e=i;return s&&(e+="?othersw="+encodeURIComponent(s)),function(e,n){return new Promise(function(r,i){aka3pmLog("Registering service worker with URL: "+e),navigator.serviceWorker.register(e,n).then(function(e){aka3pmLog("ServiceWorker registration successful with scope: ",e.scope),r(e),o(1)}).catch(function(e){aka3pmLog("ServiceWorker registration failed: ",e),o(0),i(e)})})}(e,m)},g=navigator.serviceWorker.__proto__.register;if(navigator.serviceWorker.__proto__.register=function(n,r){return n.includes(i)?g.call(this,n,r):(aka3pmLog("Overriding registration of service worker for: "+n),s=new URL(n,window.location.href),m=r,navigator.serviceWorker.controller?new Promise(function(n,r){var o=navigator.serviceWorker.controller.scriptURL;if(o.includes(i)){var a=encodeURIComponent(s);o.includes(a)?(aka3pmLog("Cancelling registration as we already integrate other SW: "+s),navigator.serviceWorker.getRegistration().then(function(e){n(e)})):e.then(function(){aka3pmLog("Unregistering existing 3pm service worker"),navigator.serviceWorker.getRegistration().then(function(e){e.unregister().then(function(){return d()}).then(function(e){n(e)}).catch(function(e){r(e)})})})}else aka3pmLog("Cancelling registration as we already have akam-sw.js installed"),navigator.serviceWorker.getRegistration().then(function(e){n(e)})}):g.call(this,n,r))},navigator.serviceWorker.controller){var u=navigator.serviceWorker.controller.scriptURL;u.includes("/akam-sw.js")||u.includes("/akam-sw-preprod.js")||u.includes("/threepm-sw.js")||(aka3pmLog("Detected existing service worker. Removing and re-adding inside akam-sw.js"),s=new URL(u,window.location.href),e.then(function(){navigator.serviceWorker.getRegistration().then(function(e){m={scope:e.scope},e.unregister(),d()})}))}else e.then(function(){window.akamServiceWorkerPreprod&&(i="/akam-sw-preprod.js"),d()});if(window.performance){var w=window.performance.timing,l=w.responseEnd-w.responseStart;c(l)}e.then(function(){t({command:"pageLoad"})});var k=!1;function v(){window.akamServiceWorkerDebug&&!k&&(k=!0,aka3pmLog("Initializing debug functions at window scope"),window.aka3pmInjectSwPolicy=function(e){return t({command:"updatePolicy",policy:e})},window.aka3pmDisableInjectedPolicy=function(){return t({command:"disableInjectedPolicy"})},window.aka3pmDeleteInjectedPolicy=function(){return t({command:"deleteInjectedPolicy"})},window.aka3pmGetStateAsync=function(){return t({command:"getState"})},window.aka3pmDumpState=function(){aka3pmGetStateAsync().then(function(e){aka3pmLog(JSON.stringify(e,null,"\t"))})},window.aka3pmInjectTiming=function(e){return c(e)},window.aka3pmUpdatePolicyFromNetwork=function(){return t({command:"pullPolicyFromNetwork"})})}v()}}();</script>
+<SCRIPT language="JavaScript">
+      function submitWait() {
+        setTimeout('submitForm()',<esi:vars>$int($(refresh_seconds))*1000</esi:vars>); //convert to milliseconds
+        return(true);
+      }
+      function submitForm() {
+        document.waitroomform.submit();
+      }
+    </SCRIPT>
+  </esi:otherwise>
+</esi:choose>
+<esi:comment text=" ---------------------- END PROTOCOL-SPECIFIC BODY ----------------------- "/>
+
+<esi:comment text=" --------------- CUSTOMIZE BODY ------------ "/>
+<esi:comment text=" --------- Content below is shown for both GET and POST requests --------- "/>
+<main>
+  <h1>Be Right Back</h1>
+ <div class="container-main">
+
+<div class="leftdiv" style="float: left;">
+<img class="img-responsive img-full hide-on-mobile" src="/vp/ulta/www/vpwaitingroom/images/model.jpg" align="center" alt="">
+<img class="img-responsive img-full show-on-mobile" src="/vp/ulta/www/vpwaitingroom/images/mobile_head.jpg" align="center" alt="">
+
+</div>
+<div class="rightdiv" style="float: left;">
+<img class="img-responsive img-full hide-on-mobile" src="/vp/ulta/www/vpwaitingroom/images/spacer.jpg" align="center" alt="">
+
+<img class="img-responsive img-full hide-on-mobile" src="/vp/ulta/www/vpwaitingroom/images/site-down_02.jpg" align="center" alt="Ulta Beauty - Be Right Back - We will be up and running shortly. Thank you for your patience">
+<!-- <img class="img-responsive img-full show-on-mobile" src="/vp/ulta/www/vpwaitingroom/images/hangtight.gif" align="center"> -->
+<img class="img-responsive img-full" src="/vp/ulta/www/vpwaitingroom/images/site-down_03.gif" align="center" alt="">
+<img class="img-responsive img-full show-on-mobile" src="/vp/ulta/www/vpwaitingroom/images/mobile_footer.jpg" align="center" alt="Ulta Beauty - Be Right Back - We will be up and running shortly. Thank you for your patience">
+</div>
+
+
+
+</div>
+</main>
+<br clear="all">
+
+</body></html>

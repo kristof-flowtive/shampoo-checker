@@ -1,17 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Outfit } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
-
-const cormorant = Cormorant_Garamond({
-  variable: "--font-serif",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
 
 const outfit = Outfit({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const viewport: Viewport = {
@@ -40,10 +34,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${outfit.variable} h-full antialiased`}
+      className={`${outfit.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#fafafa] font-[family-name:var(--font-sans)]">
-        {children}
+      <body className="min-h-full flex flex-col font-[family-name:var(--font-sans)] site-bg">
+        <div className="site-bg-overlay" aria-hidden="true" />
+        <div className="relative flex-1 flex flex-col z-10">{children}</div>
       </body>
     </html>
   );

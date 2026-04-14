@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Search,
@@ -26,7 +26,7 @@ export type AnalysisResult = {
   badIngredients: { name: string; reason: string }[];
   warnings: string[];
   tips: string[];
-  recommendation: {
+  recommendations: {
     productName: string;
     brand: string;
     score: number;
@@ -34,7 +34,7 @@ export type AnalysisResult = {
     reason: string;
     amazonAsin?: string;
     imageUrl?: string;
-  } | null;
+  }[];
 };
 
 type InputMode = "text" | "upload" | "camera";
@@ -56,8 +56,26 @@ export default function Home() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState("");
+
+  // Simulated progress — climbs toward 95% while the API call is in flight,
+  // then the handler snaps it to 100% on completion.
+  useEffect(() => {
+    if (!loading) return;
+    setProgress(4);
+    const start = Date.now();
+    const expected = 14000; // we typically see ~13s analyses
+    const id = window.setInterval(() => {
+      const elapsed = Date.now() - start;
+      // Ease-out toward 95% so the bar never "stalls" at 100% prematurely
+      const ratio = 1 - Math.exp(-elapsed / (expected * 0.55));
+      const next = Math.min(95, Math.round(ratio * 95));
+      setProgress((p) => (next > p ? next : p));
+    }, 140);
+    return () => window.clearInterval(id);
+  }, [loading]);
 
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -131,18 +149,22 @@ export default function Home() {
         return;
       }
 
+      setProgress(100);
+      // Tiny delay so users see the bar complete before it disappears
+      await new Promise((r) => setTimeout(r, 220));
       setResult(data);
     } catch {
       setError("Failed to connect. Please check your internet and try again.");
     } finally {
       setLoading(false);
+      setProgress(0);
     }
   }
 
   return (
     <main className="flex-1 flex flex-col">
       {/* Header */}
-      <header className="border-b border-[#121212]/5 bg-white sticky top-0 z-50">
+      <header className="border-b border-[#121212]/5 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-5 flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4">
             <Image
@@ -167,10 +189,10 @@ export default function Home() {
           <p className="text-[10px] sm:text-xs font-medium tracking-[0.2em] uppercase text-[#0e7c86] mb-3 sm:mb-4">
             AI-Powered Ingredient Analysis
           </p>
-          <h2 className="text-3xl sm:text-5xl font-light text-[#121212] mb-3 sm:mb-4 leading-[1.15]">
+          <h2 className="text-3xl sm:text-5xl font-light text-[#121212] mb-3 sm:mb-4 leading-[1.15] tracking-tight">
             Is your shampoo safe for
             <br />
-            <span className="font-medium italic text-[#0e7c86]">
+            <span className="font-medium text-[#0e7c86]">
               hair extensions
             </span>
             <span className="text-[#121212]">?</span>
@@ -186,7 +208,7 @@ export default function Home() {
         <div
           role="tablist"
           aria-label="Input method"
-          className="bg-white border border-[#121212]/8 rounded-full p-1 sm:p-1.5 grid grid-cols-3 gap-1 shadow-sm mb-4 sm:mb-5 max-w-sm sm:max-w-md mx-auto"
+          className="bg-white/85 backdrop-blur-sm border border-[#121212]/8 rounded-full p-1 sm:p-1.5 grid grid-cols-3 gap-1 shadow-sm mb-4 sm:mb-5 max-w-sm sm:max-w-md mx-auto"
         >
           <ModeButton
             active={mode === "text"}
@@ -221,7 +243,7 @@ export default function Home() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder='e.g. "Pantene Pro-V Daily Moisture Renewal"'
-                  className="w-full pl-11 sm:pl-13 pr-4 sm:pr-5 py-3.5 sm:py-4 rounded-full border border-[#121212]/8 bg-white text-[#121212] placeholder-[#121212]/30 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0e7c86]/30 focus:border-[#0e7c86] text-base sm:text-sm tracking-wide"
+                  className="w-full pl-11 sm:pl-13 pr-4 sm:pr-5 py-3.5 sm:py-4 rounded-full border border-[#121212]/8 bg-white/90 backdrop-blur-sm text-[#121212] placeholder-[#121212]/30 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0e7c86]/30 focus:border-[#0e7c86] text-base sm:text-sm tracking-wide"
                   maxLength={5000}
                   autoComplete="off"
                   autoCorrect="off"
@@ -265,6 +287,34 @@ export default function Home() {
           )}
         </form>
 
+        {loading && (
+          <div className="mt-5 sm:mt-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-[#0e7c86]">
+                Analyzing ingredients
+              </span>
+              <span className="text-sm font-medium tabular-nums text-[#0a5a62]">
+                {progress}%
+              </span>
+            </div>
+            <div className="h-1.5 bg-[#0e7c86]/10 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#bfe4e7] via-[#0e7c86] to-[#0a5a62] transition-[width] duration-200 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-xs text-[#121212]/40 mt-2">
+              {progress < 35
+                ? "Reading label and identifying the product..."
+                : progress < 70
+                  ? "Cross-checking ingredients against extension-safe criteria..."
+                  : progress < 95
+                    ? "Grading and preparing recommendations..."
+                    : "Almost done..."}
+            </p>
+          </div>
+        )}
+
         {error && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm">
             {error}
@@ -306,7 +356,7 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-[#121212]/5 bg-white">
+      <footer className="mt-auto border-t border-[#121212]/5 bg-white/80 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <Image
             src="/beauvoir-logo.png"
@@ -404,7 +454,7 @@ function ImageDropZone({
 }) {
   if (preview) {
     return (
-      <div className="relative rounded-2xl border border-[#121212]/8 bg-white shadow-sm p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+      <div className="relative rounded-2xl border border-[#121212]/8 bg-white/90 backdrop-blur-sm shadow-sm p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={preview}
@@ -447,7 +497,7 @@ function ImageDropZone({
     <button
       type="button"
       onClick={onPick}
-      className="w-full rounded-2xl border-2 border-dashed border-[#121212]/10 bg-white hover:bg-[#e6f4f4]/40 hover:border-[#0e7c86]/40 active:bg-[#e6f4f4]/60 transition-all duration-300 py-8 sm:py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer group touch-manipulation select-none"
+      className="w-full rounded-2xl border-2 border-dashed border-[#121212]/10 bg-white/80 backdrop-blur-sm hover:bg-[#bfe4e7]/40 hover:border-[#0e7c86]/40 active:bg-[#bfe4e7]/60 transition-all duration-300 py-8 sm:py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer group touch-manipulation select-none"
     >
       <div className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-[#e6f4f4] text-[#0e7c86] flex items-center justify-center mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-105">
         <Icon size={22} />

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { openai, SYSTEM_PROMPT } from "@/lib/openai";
+import { pickRecommendations } from "@/lib/recommendations";
 
 const MAX_IMAGE_CHARS = 7_500_000;
 
@@ -141,13 +142,14 @@ Return ONLY the JSON, no markdown fences, no extra text.`,
 
     const result = JSON.parse(content);
 
-    // Build product image URL from Amazon ASIN
-    if (result.recommendation?.amazonAsin) {
-      const asin = result.recommendation.amazonAsin.trim();
-      if (/^[A-Z0-9]{10}$/.test(asin)) {
-        result.recommendation.imageUrl = `https://images-na.ssl-images-amazon.com/images/P/${asin}.01._SCLZZZZZZZ_.jpg`;
-      }
-    }
+    // Always use the curated recommendation library for images + accuracy.
+    // The AI handles scoring/ingredients; we own recommendations.
+    result.recommendations = pickRecommendations(
+      result.productName,
+      result.brand,
+      3
+    );
+    delete result.recommendation;
 
     return NextResponse.json(result);
   } catch (error: unknown) {

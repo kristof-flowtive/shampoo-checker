@@ -39,6 +39,13 @@ export async function GET(req: NextRequest) {
 
     const buffer = await response.arrayBuffer();
 
+    // Amazon returns a ~43-byte 1x1 transparent GIF/PNG when a product image
+    // doesn't exist for a given ASIN. Treat anything under 2KB as a miss so
+    // the client shows its fallback tile instead of a blank square.
+    if (buffer.byteLength < 2048) {
+      return NextResponse.json({ error: "Image not available" }, { status: 404 });
+    }
+
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": contentType,

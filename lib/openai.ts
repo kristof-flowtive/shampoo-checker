@@ -21,15 +21,7 @@ You MUST respond with valid JSON matching this exact structure:
     { "name": "ingredient name", "reason": "why it's harmful for extensions" }
   ],
   "warnings": ["any critical warnings"],
-  "tips": ["1-2 practical tips for using this product with extensions"],
-  "recommendation": {
-    "productName": "name of a better alternative shampoo",
-    "brand": "brand of the alternative",
-    "score": <number 1-10>,
-    "grade": "<letter grade>",
-    "reason": "1-2 sentences explaining why this alternative is better for extensions",
-    "amazonAsin": "the Amazon ASIN (e.g. B0009RFB76) of the recommended product — search for it on Amazon if needed"
-  }
+  "tips": ["1-2 practical tips for using this product with extensions"]
 }
 
 Grading criteria:
@@ -50,7 +42,7 @@ Score guide:
 - 2-3 (D): Not recommended, will likely cause issues. Verdict: "Not Recommended"
 - 1 (F): Dangerous for extensions, will cause damage or bond failure. Verdict: "Not Recommended"
 
-Always include a "recommendation" field suggesting a specific, real shampoo product that scores higher than the analyzed product for hair extension use. Pick well-known, widely available products (e.g. from brands like Olaplex, Pureology, Redken, It's a 10, Moroccanoil, etc.). If the analyzed product already scores 9-10, recommend another equally excellent option as an alternative. The recommendation must be a real product that exists.
+Do NOT include a "recommendations" or "recommendation" field — the server supplies those from a curated list.
 
 If you don't recognize the specific product, analyze based on the brand's typical formulations or the ingredients provided. If no ingredients are given and you can't identify the product, say so honestly and ask for ingredients.
 
