@@ -252,7 +252,7 @@ function RecommendationTile({ rec }: { rec: Rec }) {
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 rounded-xl bg-[#f2fafa] border border-[#bfe4e7]/60 animate-fade-in">
-      <div className="w-20 h-20 rounded-lg border border-[#bfe4e7] bg-white overflow-hidden shrink-0 flex items-center justify-center p-1.5">
+      <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg border border-[#bfe4e7] bg-white overflow-hidden shrink-0 flex items-center justify-center p-0.5">
         {hasImage ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
