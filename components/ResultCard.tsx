@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   Lightbulb,
   ArrowRightCircle,
-  RefreshCw,
 } from "lucide-react";
 import type { AnalysisResult } from "@/app/page";
 
@@ -17,7 +16,7 @@ function gradeColor(grade: string): string {
     case "A":
       return "text-green-700 bg-green-50 border-green-200";
     case "B":
-      return "text-[#0a5a62] bg-[#e4f3f4] border-[#bfe4e7]";
+      return "text-[#0a5a62] bg-[#e4f3f4] border-[#b1e4e3]";
     case "C":
       return "text-yellow-700 bg-yellow-50 border-yellow-200";
     case "D":
@@ -58,9 +57,6 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
     }
     return out;
   }, [result.recommendations]);
-
-  const [recIndex, setRecIndex] = useState(0);
-  const currentRec = uniqueRecs[recIndex] ?? null;
 
   return (
     <div className="space-y-6">
@@ -185,7 +181,7 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
 
       {/* Tips */}
       {result.tips.length > 0 && (
-        <div className="bg-[#e4f3f4]/80 backdrop-blur-sm rounded-2xl border border-[#bfe4e7] p-5 sm:p-7">
+        <div className="bg-[#e4f3f4]/80 backdrop-blur-sm rounded-2xl border border-[#b1e4e3] p-5 sm:p-7">
           <h4 className="font-medium text-[#0a5a62] mb-3 flex items-center gap-2.5 text-sm tracking-wide">
             <Lightbulb size={17} />
             Tips
@@ -200,37 +196,18 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
         </div>
       )}
 
-      {/* Recommendation (rotates through the options) */}
-      {currentRec && (
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#bfe4e7] p-5 sm:p-7 shadow-sm">
-          <div className="flex items-start justify-between gap-4 mb-5">
-            <div>
-              <h4 className="font-medium text-[#0a5a62] flex items-center gap-2.5 text-sm tracking-wide">
-                <ArrowRightCircle size={17} className="text-[#0e7c86]" />
-                Recommended Alternative
-              </h4>
-              {uniqueRecs.length > 1 && (
-                <p className="text-xs text-[#121212]/45 mt-1 ml-6">
-                  Option {recIndex + 1} of {uniqueRecs.length}
-                </p>
-              )}
-            </div>
-            {uniqueRecs.length > 1 && (
-              <button
-                type="button"
-                onClick={() =>
-                  setRecIndex((i) => (i + 1) % uniqueRecs.length)
-                }
-                className="flex items-center gap-1.5 text-xs font-medium text-[#0e7c86] hover:text-[#0a5a62] active:text-[#084a52] bg-[#e4f3f4] hover:bg-[#bfe4e7] rounded-full px-3.5 py-2 transition-all duration-300 cursor-pointer touch-manipulation select-none"
-                aria-label="Show another recommendation"
-              >
-                <RefreshCw size={13} />
-                Show another
-              </button>
-            )}
+      {/* Recommendations — all options shown at once */}
+      {uniqueRecs.length > 0 && (
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#b1e4e3] p-5 sm:p-7 shadow-sm">
+          <h4 className="font-medium text-[#0a5a62] flex items-center gap-2.5 text-sm tracking-wide mb-5">
+            <ArrowRightCircle size={17} className="text-[#0e7c86]" />
+            Recommended Alternatives
+          </h4>
+          <div className="space-y-4">
+            {uniqueRecs.map((rec, i) => (
+              <RecommendationTile key={`${rec.brand}-${rec.productName}-${i}`} rec={rec} />
+            ))}
           </div>
-
-          <RecommendationTile key={recIndex} rec={currentRec} />
         </div>
       )}
 
@@ -251,8 +228,8 @@ function RecommendationTile({ rec }: { rec: Rec }) {
   const hasImage = !!rec.imageUrl && !imgFailed;
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 rounded-xl bg-[#f2fafa] border border-[#bfe4e7]/60 animate-fade-in">
-      <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg border border-[#bfe4e7] bg-white overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 rounded-xl bg-[#f2fafa] border border-[#b1e4e3]/60 animate-fade-in">
+      <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg border border-[#b1e4e3] bg-white overflow-hidden shrink-0 flex items-center justify-center p-0.5">
         {hasImage ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
@@ -262,7 +239,7 @@ function RecommendationTile({ rec }: { rec: Rec }) {
             onError={() => setImgFailed(true)}
           />
         ) : (
-          <div className="w-full h-full rounded-md bg-gradient-to-br from-[#e4f3f4] to-[#bfe4e7] flex items-center justify-center text-[#0a5a62] text-[10px] font-medium tracking-wider uppercase">
+          <div className="w-full h-full rounded-md bg-gradient-to-br from-[#e4f3f4] to-[#b1e4e3] flex items-center justify-center text-[#0a5a62] text-[10px] font-medium tracking-wider uppercase">
             No image
           </div>
         )}

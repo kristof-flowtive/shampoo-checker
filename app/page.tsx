@@ -299,7 +299,7 @@ export default function Home() {
             </div>
             <div className="h-1.5 bg-[#0e7c86]/10 rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#bfe4e7] via-[#0e7c86] to-[#0a5a62] transition-[width] duration-200 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-[#b1e4e3] via-[#0e7c86] to-[#0a5a62] transition-[width] duration-200 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -497,7 +497,7 @@ function ImageDropZone({
     <button
       type="button"
       onClick={onPick}
-      className="w-full rounded-2xl border-2 border-dashed border-[#121212]/10 bg-white/80 backdrop-blur-sm hover:bg-[#bfe4e7]/40 hover:border-[#0e7c86]/40 active:bg-[#bfe4e7]/60 transition-all duration-300 py-8 sm:py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer group touch-manipulation select-none"
+      className="w-full rounded-2xl border-2 border-dashed border-[#121212]/10 bg-white/80 backdrop-blur-sm hover:bg-[#b1e4e3]/40 hover:border-[#0e7c86]/40 active:bg-[#b1e4e3]/60 transition-all duration-300 py-8 sm:py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer group touch-manipulation select-none"
     >
       <div className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-[#e6f4f4] text-[#0e7c86] flex items-center justify-center mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-105">
         <Icon size={22} />
