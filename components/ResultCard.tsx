@@ -16,7 +16,7 @@ function gradeColor(grade: string): string {
     case "A":
       return "text-green-700 bg-green-50 border-green-200";
     case "B":
-      return "text-[#0a5a62] bg-[#e4f3f4] border-[#b1e4e3]";
+      return "text-[#0a5a62] bg-[#e4f3f4] border-[#bbe2e2]";
     case "C":
       return "text-yellow-700 bg-yellow-50 border-yellow-200";
     case "D":
@@ -181,7 +181,7 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
 
       {/* Tips */}
       {result.tips.length > 0 && (
-        <div className="bg-[#e4f3f4]/80 backdrop-blur-sm rounded-2xl border border-[#b1e4e3] p-5 sm:p-7">
+        <div className="bg-[#e4f3f4]/80 backdrop-blur-sm rounded-2xl border border-[#bbe2e2] p-5 sm:p-7">
           <h4 className="font-medium text-[#0a5a62] mb-3 flex items-center gap-2.5 text-sm tracking-wide">
             <Lightbulb size={17} />
             Tips
@@ -198,7 +198,7 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
 
       {/* Recommendations — all options shown at once */}
       {uniqueRecs.length > 0 && (
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#b1e4e3] p-5 sm:p-7 shadow-sm">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#bbe2e2] p-5 sm:p-7 shadow-sm">
           <h4 className="font-medium text-[#0a5a62] flex items-center gap-2.5 text-sm tracking-wide mb-5">
             <ArrowRightCircle size={17} className="text-[#0e7c86]" />
             Recommended Alternatives
@@ -228,8 +228,8 @@ function RecommendationTile({ rec }: { rec: Rec }) {
   const hasImage = !!rec.imageUrl && !imgFailed;
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 rounded-xl bg-[#f2fafa] border border-[#b1e4e3]/60 animate-fade-in">
-      <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg border border-[#b1e4e3] bg-white overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 rounded-xl bg-[#f2fafa] border border-[#bbe2e2]/60 animate-fade-in">
+      <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg border border-[#bbe2e2] bg-white overflow-hidden shrink-0 flex items-center justify-center p-0.5">
         {hasImage ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
@@ -239,7 +239,7 @@ function RecommendationTile({ rec }: { rec: Rec }) {
             onError={() => setImgFailed(true)}
           />
         ) : (
-          <div className="w-full h-full rounded-md bg-gradient-to-br from-[#e4f3f4] to-[#b1e4e3] flex items-center justify-center text-[#0a5a62] text-[10px] font-medium tracking-wider uppercase">
+          <div className="w-full h-full rounded-md bg-gradient-to-br from-[#e4f3f4] to-[#bbe2e2] flex items-center justify-center text-[#0a5a62] text-[10px] font-medium tracking-wider uppercase">
             No image
           </div>
         )}

@@ -164,7 +164,7 @@ export default function Home() {
   return (
     <main className="flex-1 flex flex-col">
       {/* Header */}
-      <header className="border-b border-[#121212]/5 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-[#121212]/5 bg-[#bbe2e2] sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-5 flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4">
             <Image
@@ -176,7 +176,7 @@ export default function Home() {
               priority
             />
             <div className="h-5 sm:h-6 w-px bg-[#121212]/10" />
-            <span className="text-[10px] sm:text-xs font-medium tracking-[0.15em] uppercase text-[#0e7c86]">
+            <span className="text-[10px] sm:text-xs font-medium tracking-[0.15em] uppercase text-black">
               Extension-Safe
             </span>
           </div>
@@ -192,10 +192,7 @@ export default function Home() {
           <h2 className="text-3xl sm:text-5xl font-light text-[#121212] mb-3 sm:mb-4 leading-[1.15] tracking-tight">
             Is your shampoo safe for
             <br />
-            <span className="font-medium text-[#0e7c86]">
-              hair extensions
-            </span>
-            <span className="text-[#121212]">?</span>
+            hair extensions?
           </h2>
           <p className="text-[#121212]/50 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
             Search by name, upload a label photo, or snap a bottle.
@@ -299,7 +296,7 @@ export default function Home() {
             </div>
             <div className="h-1.5 bg-[#0e7c86]/10 rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#b1e4e3] via-[#0e7c86] to-[#0a5a62] transition-[width] duration-200 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-[#bbe2e2] via-[#0e7c86] to-[#0a5a62] transition-[width] duration-200 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -356,16 +353,16 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-[#121212]/5 bg-white/80 backdrop-blur-md">
+      <footer className="mt-auto border-t border-[#121212]/5 bg-[#bbe2e2]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <Image
             src="/beauvoir-logo.png"
             alt="Beauvoir"
-            width={100}
-            height={25}
-            className="h-5 w-auto opacity-40"
+            width={120}
+            height={30}
+            className="h-6 w-auto"
           />
-          <p className="text-[11px] text-[#121212]/30 tracking-wide text-center sm:text-right max-w-sm">
+          <p className="text-[11px] text-black tracking-wide text-center sm:text-right max-w-sm">
             Extension-Safe is for informational purposes only. Always consult
             your stylist for personalized advice.
           </p>
@@ -394,7 +391,7 @@ function ModeButton({
       onClick={onClick}
       className={`flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-2.5 px-3 rounded-full text-xs font-medium tracking-wide transition-all duration-300 cursor-pointer select-none touch-manipulation ${
         active
-          ? "bg-[#0e7c86] text-white shadow-sm"
+          ? "bg-[#bbe2e2] text-[#121212] shadow-sm"
           : "text-[#121212]/50 hover:text-[#121212] hover:bg-[#121212]/3 active:bg-[#121212]/5"
       }`}
     >
@@ -419,11 +416,11 @@ function SubmitButton({
       disabled={disabled}
       className={`${
         full ? "w-full" : ""
-      } group px-8 py-4 bg-[#0e7c86] text-white font-medium rounded-full shadow-md hover:shadow-lg hover:bg-[#0a5a62] active:bg-[#084a52] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer text-sm tracking-wide touch-manipulation select-none`}
+      } group px-8 py-4 bg-[#bbe2e2] text-black font-medium rounded-full shadow-sm hover:shadow-md disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer text-sm tracking-wide touch-manipulation select-none`}
     >
       {loading ? (
         <>
-          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-[#121212]/20 border-t-[#121212] rounded-full animate-spin" />
           Analyzing...
         </>
       ) : (
@@ -497,7 +494,7 @@ function ImageDropZone({
     <button
       type="button"
       onClick={onPick}
-      className="w-full rounded-2xl border-2 border-dashed border-[#121212]/10 bg-white/80 backdrop-blur-sm hover:bg-[#b1e4e3]/40 hover:border-[#0e7c86]/40 active:bg-[#b1e4e3]/60 transition-all duration-300 py-8 sm:py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer group touch-manipulation select-none"
+      className="w-full rounded-2xl border-2 border-dashed border-[#121212]/10 bg-white/80 backdrop-blur-sm hover:bg-[#bbe2e2]/40 hover:border-[#0e7c86]/40 active:bg-[#bbe2e2]/60 transition-all duration-300 py-8 sm:py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer group touch-manipulation select-none"
     >
       <div className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-[#e6f4f4] text-[#0e7c86] flex items-center justify-center mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-105">
         <Icon size={22} />
@@ -519,7 +516,7 @@ function FeatureCard({
 }) {
   return (
     <div className="group text-center px-4">
-      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#e6f4f4] text-[#0e7c86] mb-4 transition-all duration-300 group-hover:bg-[#0e7c86] group-hover:text-white group-hover:shadow-md">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#bbe2e2] text-[#121212] mb-4 transition-all duration-300 group-hover:shadow-md">
         {icon}
       </div>
       <h3 className="font-semibold text-[#121212] mb-2 text-sm tracking-wide">
