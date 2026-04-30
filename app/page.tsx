@@ -26,15 +26,6 @@ export type AnalysisResult = {
   badIngredients: { name: string; reason: string }[];
   warnings: string[];
   tips: string[];
-  recommendations: {
-    productName: string;
-    brand: string;
-    score: number;
-    grade: string;
-    reason: string;
-    amazonAsin?: string;
-    imageUrl?: string;
-  }[];
 };
 
 type InputMode = "text" | "upload" | "camera";
@@ -306,7 +297,7 @@ export default function Home() {
                 : progress < 70
                   ? "Cross-checking ingredients against extension-safe criteria..."
                   : progress < 95
-                    ? "Grading and preparing recommendations..."
+                    ? "Grading and finalizing your results..."
                     : "Almost done..."}
             </p>
           </div>

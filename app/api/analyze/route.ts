@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { openai, SYSTEM_PROMPT } from "@/lib/openai";
-import { pickRecommendations } from "@/lib/recommendations";
 
 const MAX_IMAGE_CHARS = 7_500_000;
 
@@ -141,15 +140,6 @@ Return ONLY the JSON, no markdown fences, no extra text.`,
       .trim();
 
     const result = JSON.parse(content);
-
-    // Always use the curated recommendation library for images + accuracy.
-    // The AI handles scoring/ingredients; we own recommendations.
-    result.recommendations = pickRecommendations(
-      result.productName,
-      result.brand,
-      3
-    );
-    delete result.recommendation;
 
     return NextResponse.json(result);
   } catch (error: unknown) {

@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import {
   CheckCircle,
   XCircle,
   AlertTriangle,
   Lightbulb,
-  ArrowRightCircle,
 } from "lucide-react";
 import type { AnalysisResult } from "@/app/page";
 
@@ -37,27 +35,11 @@ function scoreColor(score: number): string {
 
 function verdictBg(verdict: string): string {
   const v = verdict.toLowerCase();
-  if (v.includes("safe") && !v.includes("caution") && !v.includes("not"))
-    return "bg-green-50 border-green-200 text-green-800";
-  if (v.includes("caution"))
-    return "bg-yellow-50 border-yellow-200 text-yellow-800";
-  return "bg-red-50 border-red-200 text-red-800";
+  if (v.includes("safe")) return "bg-green-50 border-green-200 text-green-800";
+  return "bg-yellow-50 border-yellow-200 text-yellow-800";
 }
 
 export default function ResultCard({ result }: { result: AnalysisResult }) {
-  // De-duplicate recommendations by product + brand so we never show the same one twice
-  const uniqueRecs = useMemo(() => {
-    const seen = new Set<string>();
-    const out: AnalysisResult["recommendations"] = [];
-    for (const rec of result.recommendations ?? []) {
-      const key = `${(rec.brand ?? "").toLowerCase().trim()}::${(rec.productName ?? "").toLowerCase().trim()}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push(rec);
-    }
-    return out;
-  }, [result.recommendations]);
-
   return (
     <div className="space-y-6">
       {/* Score Header */}
@@ -196,71 +178,12 @@ export default function ResultCard({ result }: { result: AnalysisResult }) {
         </div>
       )}
 
-      {/* Recommendations — all options shown at once */}
-      {uniqueRecs.length > 0 && (
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#bbe2e2] p-5 sm:p-7 shadow-sm">
-          <h4 className="font-medium text-[#0a5a62] flex items-center gap-2.5 text-sm tracking-wide mb-5">
-            <ArrowRightCircle size={17} className="text-[#0e7c86]" />
-            Recommended Alternatives
-          </h4>
-          <div className="space-y-4">
-            {uniqueRecs.map((rec, i) => (
-              <RecommendationTile key={`${rec.brand}-${rec.productName}-${i}`} rec={rec} />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Disclaimer */}
       <p className="text-[11px] text-[#121212]/35 text-center px-4 tracking-wide">
         This analysis is AI-generated and for informational purposes only. Actual
         product formulations may vary. Always consult your hair extension stylist
         for personalized recommendations.
       </p>
-    </div>
-  );
-}
-
-type Rec = NonNullable<AnalysisResult["recommendations"]>[number];
-
-function RecommendationTile({ rec }: { rec: Rec }) {
-  const [imgFailed, setImgFailed] = useState(false);
-  const hasImage = !!rec.imageUrl && !imgFailed;
-
-  return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 rounded-xl bg-[#f2fafa] border border-[#bbe2e2]/60 animate-fade-in">
-      <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg border border-[#bbe2e2] bg-white overflow-hidden shrink-0 flex items-center justify-center p-0.5">
-        {hasImage ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={`/api/image-proxy?url=${encodeURIComponent(rec.imageUrl as string)}`}
-            alt={rec.productName}
-            className="w-full h-full object-contain"
-            onError={() => setImgFailed(true)}
-          />
-        ) : (
-          <div className="w-full h-full rounded-md bg-gradient-to-br from-[#e4f3f4] to-[#bbe2e2] flex items-center justify-center text-[#0a5a62] text-[10px] font-medium tracking-wider uppercase">
-            No image
-          </div>
-        )}
-      </div>
-      <div
-        className={`w-14 h-14 rounded-xl border-2 flex flex-col items-center justify-center shrink-0 ${gradeColor(rec.grade)}`}
-      >
-        <span className="text-lg font-semibold tracking-tight">{rec.grade}</span>
-        <span className="text-[9px] font-medium opacity-60">
-          {rec.score}/10
-        </span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-[#121212] tracking-tight">
-          {rec.productName}
-        </p>
-        <p className="text-sm text-[#0e7c86]/80 mb-1">{rec.brand}</p>
-        <p className="text-sm text-[#121212]/55 leading-relaxed">
-          {rec.reason}
-        </p>
-      </div>
     </div>
   );
 }

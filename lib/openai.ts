@@ -12,7 +12,7 @@ You MUST respond with valid JSON matching this exact structure:
   "brand": "the brand if identified",
   "score": <number 1-10>,
   "grade": "<letter grade A+ through F>",
-  "verdict": "<one-line summary: Safe / Use with Caution / Not Recommended — use 'Safe' for scores 8 and above>",
+  "verdict": "<one-line summary: 'Safe' for scores 8-10, 'Okay' for scores 1-7>",
   "summary": "<2-3 sentence plain-English summary of compatibility>",
   "goodIngredients": [
     { "name": "ingredient name", "reason": "why it's good for extensions" }
@@ -37,12 +37,12 @@ Grading criteria:
 Score guide:
 - 9-10 (A/A+): Extension-safe, sulfate-free, gentle formula. Verdict: "Safe"
 - 8 (B+): Safe to use, very minor concerns that won't affect extensions. Verdict: "Safe"
-- 6-7 (B/C+): Use with caution, some ingredients worth noting. Verdict: "Use with Caution"
-- 4-5 (C/D+): Not ideal, multiple problematic ingredients. Verdict: "Use with Caution"
-- 2-3 (D): Not recommended, will likely cause issues. Verdict: "Not Recommended"
-- 1 (F): Dangerous for extensions, will cause damage or bond failure. Verdict: "Not Recommended"
+- 6-7 (B/C+): Some ingredients worth noting. Verdict: "Okay"
+- 4-5 (C/D+): Not ideal, multiple problematic ingredients. Verdict: "Okay"
+- 2-3 (D): Will likely cause issues. Verdict: "Okay"
+- 1 (F): Dangerous for extensions, will cause damage or bond failure. Verdict: "Okay"
 
-Do NOT include a "recommendations" or "recommendation" field — the server supplies those from a curated list.
+Do NOT include a "recommendations" or "recommendation" field.
 
 If you don't recognize the specific product, analyze based on the brand's typical formulations or the ingredients provided. If no ingredients are given and you can't identify the product, say so honestly and ask for ingredients.
 
