@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { openai, SYSTEM_PROMPT } from "@/lib/openai";
+import { openai, SYSTEM_PROMPT, verdictForGrade } from "@/lib/openai";
 
 const MAX_IMAGE_CHARS = 7_500_000;
 
@@ -140,6 +140,10 @@ Return ONLY the JSON, no markdown fences, no extra text.`,
       .trim();
 
     const result = JSON.parse(content);
+
+    // Enforce the recommendation cutoff in code so it can't drift with model
+    // output: only A-/A/A+ are "Recommended"; B+ and below are "Not Recommended".
+    result.verdict = verdictForGrade(result.grade);
 
     return NextResponse.json(result);
   } catch (error: unknown) {

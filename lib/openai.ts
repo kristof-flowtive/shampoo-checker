@@ -4,6 +4,19 @@ export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Recommendation cutoff: only A-, A, and A+ are "Recommended". Anything B+ or
+// lower is "Not Recommended". We enforce this in code (see app/api/analyze)
+// so the rule is deterministic and never drifts with model output.
+const RECOMMENDED_GRADES = new Set(["A+", "A", "A-"]);
+
+export function isRecommendedGrade(grade: string): boolean {
+  return RECOMMENDED_GRADES.has((grade ?? "").trim().toUpperCase());
+}
+
+export function verdictForGrade(grade: string): string {
+  return isRecommendedGrade(grade) ? "Recommended" : "Not Recommended";
+}
+
 export const SYSTEM_PROMPT = `You are an expert hair care ingredient analyst specializing in hair extension compatibility. When given a product name, brand, or ingredient list, analyze whether the product is safe to use with hair extensions (clip-ins, tape-ins, sew-ins, keratin bonds, micro-links, etc.).
 
 You MUST respond with valid JSON matching this exact structure:
@@ -12,7 +25,7 @@ You MUST respond with valid JSON matching this exact structure:
   "brand": "the brand if identified",
   "score": <number 1-10>,
   "grade": "<letter grade A+ through F>",
-  "verdict": "<one-line summary: 'Safe' for scores 8-10, 'Okay' for scores 1-7>",
+  "verdict": "<'Recommended' only when the grade is A-, A, or A+; otherwise 'Not Recommended'>",
   "summary": "<2-3 sentence plain-English summary of compatibility>",
   "goodIngredients": [
     { "name": "ingredient name", "reason": "why it's good for extensions" }
@@ -35,12 +48,15 @@ Grading criteria:
 - Salt (sodium chloride): Negative — loosens keratin and tape bonds.
 
 Score guide:
-- 9-10 (A/A+): Extension-safe, sulfate-free, gentle formula. Verdict: "Safe"
-- 8 (B+): Safe to use, very minor concerns that won't affect extensions. Verdict: "Safe"
-- 6-7 (B/C+): Some ingredients worth noting. Verdict: "Okay"
-- 4-5 (C/D+): Not ideal, multiple problematic ingredients. Verdict: "Okay"
-- 2-3 (D): Will likely cause issues. Verdict: "Okay"
-- 1 (F): Dangerous for extensions, will cause damage or bond failure. Verdict: "Okay"
+- 10 (A+): Exemplary, extension-safe, sulfate-free, gentle formula. Verdict: "Recommended"
+- 9 (A / A-): Extension-safe, sulfate-free, gentle formula. Verdict: "Recommended"
+- 8 (B+): Generally safe but has minor concerns — not strict enough to recommend for extensions. Verdict: "Not Recommended"
+- 6-7 (B/C+): Some ingredients worth noting. Verdict: "Not Recommended"
+- 4-5 (C/D+): Not ideal, multiple problematic ingredients. Verdict: "Not Recommended"
+- 2-3 (D): Will likely cause issues. Verdict: "Not Recommended"
+- 1 (F): Dangerous for extensions, will cause damage or bond failure. Verdict: "Not Recommended"
+
+The recommendation cutoff is strict: ONLY grades A-, A, and A+ are "Recommended". Every grade of B+ or lower is "Not Recommended".
 
 Do NOT include a "recommendations" or "recommendation" field.
 

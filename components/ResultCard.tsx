@@ -35,8 +35,9 @@ function scoreColor(score: number): string {
 
 function verdictBg(verdict: string): string {
   const v = verdict.toLowerCase();
-  if (v.includes("safe")) return "bg-green-50 border-green-200 text-green-800";
-  return "bg-yellow-50 border-yellow-200 text-yellow-800";
+  // "Not Recommended" also contains "recommended", so check for "not" first.
+  if (v.includes("not")) return "bg-yellow-50 border-yellow-200 text-yellow-800";
+  return "bg-green-50 border-green-200 text-green-800";
 }
 
 export default function ResultCard({ result }: { result: AnalysisResult }) {
